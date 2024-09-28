@@ -27,10 +27,16 @@ namespace c__huffman_encoding.internals.encoding
             var occurances = CountCharOccurancesInText(sourceContent);
             Helpers.WriteLine(occurances);
 
-            throw new NotImplementedException();
+            var head = GenerateBinaryTree(occurances);
+            Helpers.WriteLine(head);
+
+            var table = GenerateHuffmanTable(head);
+            Helpers.WriteLine(table);
+
+            return table;
         }
 
-        private static Dictionary<char, int> CountCharOccurancesInText(string input) 
+        private static List<KeyValuePair<char, int>> CountCharOccurancesInText(string input) 
         {
             var occurances = new Dictionary<char, int>();
             foreach (char c in input)
@@ -41,10 +47,52 @@ namespace c__huffman_encoding.internals.encoding
                 } 
                 else
                 {
-                    occurances[c] = 0;
+                    occurances[c] = 1;
                 }
             }
-            return occurances.OrderBy(kvp => -kvp.Value).ToDictionary();
+            return occurances.OrderBy(kvp => -kvp.Value).ToList();
+        }
+
+        private static BinaryTreeNode<char> GenerateBinaryTree(List<KeyValuePair<char, int>> list)
+        {
+            PriorityQueue<BinaryTreeNode<char>, int> priorityQueue = new();
+            foreach (KeyValuePair<char, int> kvp in list)
+            {
+                priorityQueue.Enqueue(new BinaryTreeNode<char>(kvp.Key), kvp.Value);
+            }
+
+            while (priorityQueue.Count != 1)
+            {
+                int priority1, priority2;
+                BinaryTreeNode<char> node1, node2;
+                priorityQueue.TryDequeue(out node1, out priority1);
+                priorityQueue.TryDequeue(out node2, out priority2);
+
+                BinaryTreeNode<char> newNode = new BinaryTreeNode<char>('\0');
+                newNode.left = node1;
+                newNode.right = node2;
+                priorityQueue.Enqueue(newNode, priority1 + priority2);
+            }
+
+            return priorityQueue.Dequeue();
+        }
+        private static Dictionary<char, BitArray> GenerateHuffmanTable(BinaryTreeNode<char> head)
+        {
+            var dict = new Dictionary<char, BitArray>();
+            var bits = new BitArray(0);
+            WalkTree(head, bits, dict);
+            return dict;
+        }
+
+        private static void WalkTree(BinaryTreeNode<char> node, BitArray bits, Dictionary<char, BitArray> dict)
+        {
+            if (node.IsLeaf())
+            {
+                dict[node.data] = bits;
+                return;
+            }
+            WalkTree(node.left, Helpers.AddBit(bits, false), dict);
+            WalkTree(node.right, Helpers.AddBit(bits, true), dict);
         }
     }
 }

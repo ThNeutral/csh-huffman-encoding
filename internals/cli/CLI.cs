@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 enum ErrorCodes
 {
+    NO_ERROR,
     TOO_FEW_ARGUMENTS,
     UNKNOWN_MODE,
     MALFORMED_OUTPUT_FLAG,
@@ -19,30 +20,27 @@ namespace c__huffman_encoding.internals.cli
 {
     static internal class CLI
     {
-        public static bool ProcessCommandArguments(string[] args)
+        public static ErrorCodes ProcessCommandArguments(string[] args)
         {
             if (args.Length == 1 && args[0] == "help") 
             {
                 PrintHelp();
-                return true;
+                return ErrorCodes.NO_ERROR;
             }
             if (args.Length < 2)
             {
-                PrintError(ErrorCodes.TOO_FEW_ARGUMENTS);
-                return true;
+                return ErrorCodes.TOO_FEW_ARGUMENTS;
             }
             if (args[0] != "encode" && args[0] != "decode")
             {
-                PrintError(ErrorCodes.UNKNOWN_MODE);
-                return true;
+                return ErrorCodes.UNKNOWN_MODE;
             }
             for (int i = 0; i < args.Length; i++)
             {
                 var arg = args[i];
                 if (arg.StartsWith('-') && (i == 0 || i == 1))
                 {
-                    PrintError(ErrorCodes.FLAG_IN_INCORRECT_POSITION);
-                    return true;
+                    return ErrorCodes.FLAG_IN_INCORRECT_POSITION;
                 }
                 if (i == 0)
                 {
@@ -62,8 +60,7 @@ namespace c__huffman_encoding.internals.cli
                             {
                                 if (i + 1 >= args.Length)
                                     {
-                                        PrintError(ErrorCodes.MALFORMED_OUTPUT_FLAG);
-                                        return true;
+                                        return ErrorCodes.MALFORMED_OUTPUT_FLAG;
                                     }
                                 AppParams.outputLocation = args[i+1];
                                 break;
@@ -77,7 +74,7 @@ namespace c__huffman_encoding.internals.cli
                 }
             }
 
-            return false;
+            return ErrorCodes.NO_ERROR;
         }
 
         public static void PrintError(ErrorCodes errorCodes)

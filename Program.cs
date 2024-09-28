@@ -7,8 +7,12 @@ using c__huffman_encoding.internals.helpers;
 
 Console.OutputEncoding = Encoding.UTF8;
 
-var isArgsProcessingError = CLI.ProcessCommandArguments(args);
-if (isArgsProcessingError) { return; }
+var argsProcessingError = CLI.ProcessCommandArguments(args);
+if (argsProcessingError != ErrorCodes.NO_ERROR)
+{
+    CLI.PrintError(argsProcessingError);
+    return; 
+}
 
 Helpers.WriteLine(AppParams.ToString());
 
@@ -24,9 +28,9 @@ catch
     return;
 }
 
-var (table, error) = EncodingHandler.GetHuffmanTable(source);
-if (table == null) 
+var (table, huffmanTableProcessingError) = EncodingHandler.GetHuffmanTable(source);
+if (huffmanTableProcessingError != ErrorCodes.NO_ERROR) 
 {
-    CLI.PrintError(error);
+    CLI.PrintError(huffmanTableProcessingError);
     return; 
 }
