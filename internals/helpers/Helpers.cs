@@ -31,19 +31,32 @@ namespace c__huffman_encoding.internals.helpers
                 }
             }
         }
-        public static void WriteLine(Dictionary<char, BitArray> dict)
+        public static void WriteLine(Dictionary<char, List<bool>> dict)
         {
             if (AppParams.isDebug)
             {
-                foreach (KeyValuePair<char, BitArray> kvp in dict)
+                foreach (KeyValuePair<char, List<bool>> kvp in dict)
                 {
                     var bits = "";
-                    for (int i = 0; i < kvp.Value.Length; i++)
+                    for (int i = 0; i < kvp.Value.Count; i++)
                     {
                         bits += kvp.Value[i] ? 1 : 0;
                     }
                     Console.WriteLine($"Key = {kvp.Key}, Value = {bits}");
                 }
+            }
+        }
+
+        public static void WriteLine(List<bool> bits)
+        {
+            if (AppParams.isDebug)
+            {
+                var bitsStr = "";
+                foreach (var bit in bits)
+                {
+                    bitsStr += bit ? "1" : "0";
+                }
+                Console.WriteLine(bitsStr);
             }
         }
 
@@ -76,19 +89,6 @@ namespace c__huffman_encoding.internals.helpers
             {
                 BinaryTreeNode<TData>.PrintTree(node);
             }
-        }
-
-        public static BitArray AddBit(BitArray oldBits, bool nextBit)
-        {
-            BitArray newBits = new BitArray(oldBits.Length+1);
-
-            for (int i = 0; i < oldBits.Length; i++)
-            {
-                newBits[i] = oldBits[i];
-            }
-
-            newBits[newBits.Length-1] = nextBit;
-            return newBits;
         }
     }
 }

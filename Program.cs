@@ -28,9 +28,9 @@ catch
     return;
 }
 
-var (table, huffmanTableProcessingError) = EncodingHandler.GetHuffmanTable(source);
-if (huffmanTableProcessingError != ErrorCodes.NO_ERROR) 
+var (bin, encodingError) = EncodingHandler.HuffmanEncode(source);
+if (encodingError != ErrorCodes.NO_ERROR) 
 {
-    CLI.PrintError(huffmanTableProcessingError);
+    CLI.PrintError(encodingError);
     return; 
 }

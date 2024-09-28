@@ -11,7 +11,7 @@ namespace c__huffman_encoding.internals.encoding
 {
     internal static class EncodingHandler
     {
-        public static (Dictionary<char, BitArray>? table, ErrorCodes errorCode) GetHuffmanTable(FileStream source)
+        public static (List<bool>? bits, ErrorCodes error) HuffmanEncode(FileStream source)
         {
             if (source.Length == 0)
             {
@@ -24,7 +24,49 @@ namespace c__huffman_encoding.internals.encoding
                 sourceContent = reader.ReadToEnd();
             }
 
-            var occurances = CountCharOccurancesInText(sourceContent);
+            return HuffmanEncode(sourceContent);
+        }
+        public static (List<bool>? bits, ErrorCodes error) HuffmanEncode(string source)
+        {
+            var (table, tableError) = GetHuffmanTable(source);
+            if (tableError != ErrorCodes.NO_ERROR)
+            {
+                return (null, tableError);
+            }
+
+            var binData = EncodeString(source, table);
+            Helpers.WriteLine(binData);
+
+            return (MergeTableAndBinData(table, binData), ErrorCodes.NO_ERROR);
+            
+        }
+
+        private static List<bool> MergeTableAndBinData(Dictionary<char, List<bool>> table, List<bool> binData)
+        {
+            var result = new List<bool>();
+            UInt16 tableLenght = (UInt16)table.Count;
+            foreach (var kvp in table)
+            {
+
+            }
+
+            throw new NotImplementedException();
+        }
+
+        private static List<bool> EncodeString(string source, Dictionary<char, List<bool>> table)
+        {
+            var binData = new List<bool>();
+            foreach (char ch in source)
+            {
+                var encodingBits = table[ch];
+                binData = binData.Concat(encodingBits).ToList();
+            }
+            return binData;
+        }
+
+        private static (Dictionary<char, List<bool>>? table, ErrorCodes errorCode) GetHuffmanTable(string source)
+        {
+            var occurances = CountCharOccurancesInText(source);
             Helpers.WriteLine(occurances);
 
             var head = GenerateBinaryTree(occurances);
@@ -33,7 +75,7 @@ namespace c__huffman_encoding.internals.encoding
             var table = GenerateHuffmanTable(head);
             Helpers.WriteLine(table);
 
-            return table;
+            return (table, ErrorCodes.NO_ERROR);
         }
 
         private static List<KeyValuePair<char, int>> CountCharOccurancesInText(string input) 
@@ -76,23 +118,23 @@ namespace c__huffman_encoding.internals.encoding
 
             return priorityQueue.Dequeue();
         }
-        private static Dictionary<char, BitArray> GenerateHuffmanTable(BinaryTreeNode<char> head)
+        private static Dictionary<char, List<bool>> GenerateHuffmanTable(BinaryTreeNode<char> head)
         {
-            var dict = new Dictionary<char, BitArray>();
-            var bits = new BitArray(0);
+            var dict = new Dictionary<char, List<bool>>();
+            var bits = new List<bool>(0);
             WalkTree(head, bits, dict);
             return dict;
         }
 
-        private static void WalkTree(BinaryTreeNode<char> node, BitArray bits, Dictionary<char, BitArray> dict)
+        private static void WalkTree(BinaryTreeNode<char> node, List<bool> bits, Dictionary<char, List<bool>> dict)
         {
             if (node.IsLeaf())
             {
                 dict[node.data] = bits;
                 return;
             }
-            WalkTree(node.left, Helpers.AddBit(bits, false), dict);
-            WalkTree(node.right, Helpers.AddBit(bits, true), dict);
+            WalkTree(node.left, BitOperations.AddBit(bits, false), dict);
+            WalkTree(node.right, BitOperations.AddBit(bits, true), dict);
         }
     }
 }
