@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace c__huffman_encoding.internals.helpers
 {
-    internal static class Helpers
+    internal static class Logger
     {
         public static void WriteLine<TKey, TValue>(List<KeyValuePair<TKey, TValue>> list) where TKey : notnull
         {

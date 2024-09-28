@@ -35,7 +35,7 @@ namespace c__huffman_encoding.internals.encoding
             }
 
             var binData = EncodeString(source, table);
-            Helpers.WriteLine(binData);
+            Logger.WriteLine(binData);
 
             return (MergeTableAndBinData(table, binData), ErrorCodes.NO_ERROR);
             
@@ -44,13 +44,18 @@ namespace c__huffman_encoding.internals.encoding
         private static List<bool> MergeTableAndBinData(Dictionary<char, List<bool>> table, List<bool> binData)
         {
             var result = new List<bool>();
-            UInt16 tableLenght = (UInt16)table.Count;
+            result = result.Concat(BitOperations.ToBits((UInt16)table.Count)).ToList();
             foreach (var kvp in table)
             {
-
+                result = result.Concat(BitOperations.ToBits(kvp.Key)).ToList();
+                result = result.Concat(BitOperations.ToBits((UInt16)kvp.Value.Count)).ToList();
+                result = result.Concat(kvp.Value).ToList();
             }
 
-            throw new NotImplementedException();
+            result = result.Concat(BitOperations.ToBits((UInt32)binData.Count)).ToList();
+            result = result.Concat(BitOperations.ToBits(8 - ((UInt16)binData.Count % 8u))).ToList();
+            result = result.Concat(binData).ToList();
+            return result;
         }
 
         private static List<bool> EncodeString(string source, Dictionary<char, List<bool>> table)
@@ -67,13 +72,13 @@ namespace c__huffman_encoding.internals.encoding
         private static (Dictionary<char, List<bool>>? table, ErrorCodes errorCode) GetHuffmanTable(string source)
         {
             var occurances = CountCharOccurancesInText(source);
-            Helpers.WriteLine(occurances);
+            Logger.WriteLine(occurances);
 
             var head = GenerateBinaryTree(occurances);
-            Helpers.WriteLine(head);
+            Logger.WriteLine(head);
 
             var table = GenerateHuffmanTable(head);
-            Helpers.WriteLine(table);
+            Logger.WriteLine(table);
 
             return (table, ErrorCodes.NO_ERROR);
         }

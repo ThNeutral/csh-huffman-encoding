@@ -14,7 +14,7 @@ if (argsProcessingError != ErrorCodes.NO_ERROR)
     return; 
 }
 
-Helpers.WriteLine(AppParams.ToString());
+Logger.WriteLine(AppParams.ToString());
 
 FileStream source;
 try
@@ -33,4 +33,11 @@ if (encodingError != ErrorCodes.NO_ERROR)
 {
     CLI.PrintError(encodingError);
     return; 
+}
+
+var writingError = BitWriter.WriteToFile(bin, "./output/entropy.hfmm");
+if (writingError != ErrorCodes.NO_ERROR)
+{
+    CLI.PrintError(writingError);
+    return;
 }

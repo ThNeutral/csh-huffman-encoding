@@ -13,7 +13,8 @@ enum ErrorCodes
     MALFORMED_OUTPUT_FLAG,
     FLAG_IN_INCORRECT_POSITION,
     SOURCE_FILE_DOES_NOT_EXIST,
-    EMPTY_FILE
+    EMPTY_FILE,
+    FAILED_TO_WRITE_TO_FILE
 }
 
 namespace c__huffman_encoding.internals.cli
@@ -110,6 +111,11 @@ namespace c__huffman_encoding.internals.cli
                 case ErrorCodes.EMPTY_FILE:
                     {
                         Console.WriteLine("Source file is empty");
+                        break;
+                    }
+                case ErrorCodes.FAILED_TO_WRITE_TO_FILE:
+                    {
+                        Console.WriteLine("Failed to write data into file");
                         break;
                     }
             }
