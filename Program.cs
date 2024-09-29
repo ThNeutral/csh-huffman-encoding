@@ -19,7 +19,6 @@ Logger.WriteLine(AppParams.ToString());
 FileStream source;
 try
 {
-    Console.WriteLine("Trying to open source file");
     source = File.Open(AppParams.sourceLocation!, FileMode.Open);
 }
 catch
@@ -28,16 +27,23 @@ catch
     return;
 }
 
-var (bin, encodingError) = EncodingHandler.HuffmanEncode(source);
-if (encodingError != ErrorCodes.NO_ERROR) 
+if (AppParams.isEncoding)
 {
-    CLI.PrintError(encodingError);
-    return; 
-}
+    var (bin, encodingError) = EncodingHandler.HuffmanEncode(source);
+    if (encodingError != ErrorCodes.NO_ERROR)
+    {
+        CLI.PrintError(encodingError);
+        return;
+    }
 
-var writingError = BitWriter.WriteToFile(bin, "./output/entropy.hfmm");
-if (writingError != ErrorCodes.NO_ERROR)
+    var writingError = BitWriter.WriteToFile(bin, AppParams.outputLocation);
+    if (writingError != ErrorCodes.NO_ERROR)
+    {
+        CLI.PrintError(writingError);
+        return;
+    }
+}
+else
 {
-    CLI.PrintError(writingError);
-    return;
+
 }

@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using c__huffman_encoding.internals.helpers;
 
 enum ErrorCodes
 {
     NO_ERROR,
+    NO_ERROR_PRINT_HELP,
     TOO_FEW_ARGUMENTS,
     UNKNOWN_MODE,
     MALFORMED_OUTPUT_FLAG,
@@ -26,7 +28,7 @@ namespace c__huffman_encoding.internals.cli
             if (args.Length == 1 && args[0] == "help") 
             {
                 PrintHelp();
-                return ErrorCodes.NO_ERROR;
+                return ErrorCodes.NO_ERROR_PRINT_HELP;
             }
             if (args.Length < 2)
             {
@@ -63,7 +65,8 @@ namespace c__huffman_encoding.internals.cli
                                     {
                                         return ErrorCodes.MALFORMED_OUTPUT_FLAG;
                                     }
-                                AppParams.outputLocation = args[i+1];
+                                i += 1;
+                                AppParams.outputLocation = args[i];
                                 break;
                             }
                         case "--debug":
@@ -74,6 +77,8 @@ namespace c__huffman_encoding.internals.cli
                     }
                 }
             }
+
+            ProcessOutputLocation();
 
             return ErrorCodes.NO_ERROR;
         }
@@ -124,7 +129,23 @@ namespace c__huffman_encoding.internals.cli
         private static void PrintHelp()
         {
             var appName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-            Console.WriteLine($"Usage format: {appName} <encode|decode> <text file location> <...flags>\nFlags:\n\t-o <location>\tspecifies output file location. By default output is placed file to the same folder as source file");
+            Console.WriteLine($"Usage format: {appName} <encode|decode> <text file location> <...flags>\nFlags:\n\t-o <location>\tspecifies output file location. By default output is placed in the ./output folder");
+        }
+
+        private static void ProcessOutputLocation()
+        {
+            var sourceFileNameWOExtension = Path.GetFileName(AppParams.sourceLocation).Split(".")[0];
+            if (AppParams.outputLocation == null) 
+            {
+                AppParams.outputLocation = ".\\output\\" + sourceFileNameWOExtension.Split(".")[0] + ".huffman";
+                return;
+            }
+            if (Path.GetFileName(AppParams.outputLocation).Equals(string.Empty))
+            {
+                AppParams.outputLocation += sourceFileNameWOExtension + ".huffman";
+                return;
+            }
+            Logger.WriteLine(AppParams.outputLocation);
         }
     }
 }

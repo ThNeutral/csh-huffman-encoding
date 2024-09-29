@@ -44,16 +44,21 @@ namespace c__huffman_encoding.internals.encoding
         private static List<bool> MergeTableAndBinData(Dictionary<char, List<bool>> table, List<bool> binData)
         {
             var result = new List<bool>();
+            // Number of Huffman table entries (UInt16)
             result = result.Concat(BitOperations.ToBits((UInt16)table.Count)).ToList();
+            // Huffman table entries
             foreach (var kvp in table)
             {
+                // Character (UInt16)
                 result = result.Concat(BitOperations.ToBits(kvp.Key)).ToList();
+                // Encoding size (UInt16)
                 result = result.Concat(BitOperations.ToBits((UInt16)kvp.Value.Count)).ToList();
+                // Encoding 
                 result = result.Concat(kvp.Value).ToList();
             }
-
+            // Encoded data size (UInt16)
             result = result.Concat(BitOperations.ToBits((UInt32)binData.Count)).ToList();
-            result = result.Concat(BitOperations.ToBits(8 - ((UInt16)binData.Count % 8u))).ToList();
+            // Encoded data
             result = result.Concat(binData).ToList();
             return result;
         }
