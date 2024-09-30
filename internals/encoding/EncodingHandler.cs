@@ -51,15 +51,16 @@ namespace c__huffman_encoding.internals.encoding
             {
                 // Character (UInt16)
                 result = result.Concat(BitOperations.ToBits(kvp.Key)).ToList();
-                // Encoding size (UInt16)
-                result = result.Concat(BitOperations.ToBits((UInt16)kvp.Value.Count)).ToList();
+                // Encoding size (UInt8)
+                result = result.Concat(BitOperations.ToBits((byte)kvp.Value.Count)).ToList();
                 // Encoding 
                 result = result.Concat(kvp.Value).ToList();
             }
-            // Encoded data size (UInt16)
+            // Encoded data size (UInt32)
             result = result.Concat(BitOperations.ToBits((UInt32)binData.Count)).ToList();
             // Encoded data
             result = result.Concat(binData).ToList();
+            Logger.WriteLine(result);
             return result;
         }
 

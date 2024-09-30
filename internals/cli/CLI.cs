@@ -16,7 +16,10 @@ enum ErrorCodes
     FLAG_IN_INCORRECT_POSITION,
     SOURCE_FILE_DOES_NOT_EXIST,
     EMPTY_FILE,
-    FAILED_TO_WRITE_TO_FILE
+    FAILED_TO_READ_FROM_FILE,
+    FAILED_TO_WRITE_TO_FILE,
+    FAILED_TO_DECODE_FILE,
+    UNSUPPORTED_FILE_EXTENSION
 }
 
 namespace c__huffman_encoding.internals.cli
@@ -78,9 +81,7 @@ namespace c__huffman_encoding.internals.cli
                 }
             }
 
-            ProcessOutputLocation();
-
-            return ErrorCodes.NO_ERROR;
+            return ProcessOutputLocation();
         }
 
         public static void PrintError(ErrorCodes errorCodes)
@@ -123,6 +124,21 @@ namespace c__huffman_encoding.internals.cli
                         Console.WriteLine("Failed to write data into file");
                         break;
                     }
+                case ErrorCodes.FAILED_TO_READ_FROM_FILE:
+                    {
+                        Console.WriteLine("Failed to read data from file");
+                        break;
+                    }
+                case ErrorCodes.UNSUPPORTED_FILE_EXTENSION:
+                    {
+                        Console.WriteLine("Unsupported source file extension. Can be either .txt for encoding or .huffman for decoding");
+                        break;
+                    }
+                case ErrorCodes.FAILED_TO_DECODE_FILE: 
+                    {
+                        Console.WriteLine("Failed to decode file. Probably source file is malformed");
+                        break;
+                    }
             }
         }
 
@@ -132,20 +148,30 @@ namespace c__huffman_encoding.internals.cli
             Console.WriteLine($"Usage format: {appName} <encode|decode> <text file location> <...flags>\nFlags:\n\t-o <location>\tspecifies output file location. By default output is placed in the ./output folder");
         }
 
-        private static void ProcessOutputLocation()
+        private static ErrorCodes ProcessOutputLocation()
         {
-            var sourceFileNameWOExtension = Path.GetFileName(AppParams.sourceLocation).Split(".")[0];
-            if (AppParams.outputLocation == null) 
+            if ((Path.GetExtension(AppParams.sourceLocation).Equals(".txt") && AppParams.isEncoding) || (Path.GetExtension(AppParams.sourceLocation).Equals(".huffman") && !AppParams.isEncoding))
             {
-                AppParams.outputLocation = ".\\output\\" + sourceFileNameWOExtension.Split(".")[0] + ".huffman";
-                return;
-            }
-            if (Path.GetFileName(AppParams.outputLocation).Equals(string.Empty))
+                var sourceFileNameWOExtension = Path.GetFileName(AppParams.sourceLocation).Split(".")[0];
+                var extension = AppParams.isEncoding ? ".huffman" : ".txt";
+                if (AppParams.outputLocation == null)
+                {
+                    AppParams.outputLocation = ".\\output\\" + sourceFileNameWOExtension.Split(".")[0] + extension;
+                    return ErrorCodes.NO_ERROR;
+                }
+                if (Path.GetFileName(AppParams.outputLocation).Equals(string.Empty))
+                {
+                    AppParams.outputLocation += sourceFileNameWOExtension + extension;
+                    return ErrorCodes.NO_ERROR;
+                }
+                Logger.WriteLine(AppParams.outputLocation);
+                return ErrorCodes.NO_ERROR;
+            } 
+            else
             {
-                AppParams.outputLocation += sourceFileNameWOExtension + ".huffman";
-                return;
+                return ErrorCodes.UNSUPPORTED_FILE_EXTENSION;
             }
-            Logger.WriteLine(AppParams.outputLocation);
+
         }
     }
 }

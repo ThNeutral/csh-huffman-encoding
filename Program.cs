@@ -5,8 +5,6 @@ using c__huffman_encoding.internals.cli;
 using c__huffman_encoding.internals.encoding;
 using c__huffman_encoding.internals.helpers;
 
-Console.OutputEncoding = Encoding.UTF8;
-
 var argsProcessingError = CLI.ProcessCommandArguments(args);
 if (argsProcessingError != ErrorCodes.NO_ERROR)
 {
@@ -45,5 +43,22 @@ if (AppParams.isEncoding)
 }
 else
 {
-
+    var (bits, readingError) = BitReader.ReadFromFile(source);
+    if (readingError != ErrorCodes.NO_ERROR)
+    {
+        CLI.PrintError(readingError);
+        return;
+    }
+    var (str, decodingError) = DecodingHandler.HuffmanDecode(bits);
+    if (decodingError != ErrorCodes.NO_ERROR)
+    {
+        CLI.PrintError(decodingError);
+        return;
+    }
+    Logger.WriteLine(str);
+    var outputFile = File.Open(AppParams.outputLocation, FileMode.Create);
+    using (StreamWriter outputStreamWriter = new StreamWriter(outputFile))
+    {
+        outputStreamWriter.Write(str);
+    }
 }
