@@ -42,8 +42,6 @@ namespace c__huffman_encoding.internals.encoding
                 Logger.WriteLine(e.ToString());
                 return ("", ErrorCodes.FAILED_TO_DECODE_FILE);
             }
-
-            throw new NotImplementedException();
         }
     }
 }
